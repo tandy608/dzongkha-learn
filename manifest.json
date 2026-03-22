@@ -1,0 +1,50 @@
+{
+  "name": "Dzongkha Learn",
+  "short_name": "Dzongkha",
+  "description": "Learn Dzongkha — the national language of Bhutan — with daily lessons, stories, and games.",
+  "start_url": "./dzongkha-app.html",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
+  "lang": "en",
+  "categories": ["education", "lifestyle"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "dzongkha-app.html",
+      "sizes": "390x844",
+      "type": "text/html",
+      "form_factor": "narrow"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Today's Lesson",
+      "short_name": "Lesson",
+      "description": "Jump straight into today's lesson",
+      "url": "./dzongkha-app.html#lesson",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Dictionary",
+      "short_name": "Dict",
+      "description": "English ↔ Dzongkha dictionary",
+      "url": "./dzongkha-app.html#dict",
+      "icons": [{ "src": "icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Dzongkha">
+<meta name="application-name" content="Dzongkha Learn">
+<meta name="theme-color" content="#0f1117">
+<meta name="description" content="Learn Dzongkha — the national language of Bhutan — with daily lessons, stories, and games.">
+<link rel="manifest" href="manifest.json">
+<!-- PWA icons (Apple) -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Dzongkha Learn</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+Tibetan:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0f1117;--bg2:#1a1d27;--bg3:#242838;--card:#1e2235;--border:rgba(255,255,255,0.08);--text:#f0f2ff;--muted:#8b92b3;--accent:#f5c842;--accent2:#ff6b6b;--green:#4ade80;--blue:#60a5fa;--purple:#a78bfa;--orange:#fb923c;--font:'Nunito',sans-serif;--dzfont:'Noto Sans Tibetan',serif;--r:16px;--rs:10px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;max-width:420px;margin:0 auto;overflow-x:hidden}
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:420px;background:var(--bg2);border-top:1px solid var(--border);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 4px 8px;cursor:pointer;gap:4px;transition:color 0.2s;color:var(--muted);font-size:10px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase}
+.nav-item.active{color:var(--accent)}
+.nav-icon{font-size:20px;line-height:1}
+.screen{display:none;padding:0 0 90px;min-height:100vh;animation:fadeIn 0.2s ease}
+.screen.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.hdr{background:linear-gradient(135deg,#1a1d35,#252942);padding:28px 20px 24px;position:relative;overflow:hidden}
+.hdr::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(245,200,66,0.12),transparent 70%)}
+.streak-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(245,200,66,0.15);border:1px solid rgba(245,200,66,0.3);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:700;color:var(--accent);margin-bottom:16px}
+.greeting{font-size:22px;font-weight:900;line-height:1.2;margin-bottom:4px}
+.greeting span{color:var(--accent)}
+.sub{font-size:14px;color:var(--muted);margin-bottom:20px}
+.xp-wrap{background:rgba(255,255,255,0.08);border-radius:20px;height:10px;overflow:hidden;margin-bottom:6px}
+.xp-bar{background:linear-gradient(90deg,var(--accent),var(--orange));height:100%;border-radius:20px;transition:width 0.8s cubic-bezier(.34,1.56,.64,1)}
+.xp-lbl{font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+.sec{font-size:12px;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);padding:20px 20px 10px}
+.today{margin:0 16px 4px;background:linear-gradient(135deg,#2a2050,#1e2d50);border:1px solid rgba(96,165,250,0.3);border-radius:var(--r);padding:18px;cursor:pointer;transition:transform 0.15s}
+.today:active{transform:scale(0.98)}
+.today-lbl{font-size:11px;font-weight:800;color:var(--blue);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.today-title{font-size:18px;font-weight:900;margin-bottom:4px}
+.today-sub{font-size:13px;color:var(--muted);margin-bottom:14px}
+.today-foot{display:flex;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;gap:4px;background:rgba(255,255,255,0.08);border-radius:20px;padding:4px 10px;font-size:12px;font-weight:700}
+.pill.g{background:rgba(74,222,128,0.12);color:var(--green)}
+.pill.b{background:rgba(96,165,250,0.12);color:var(--blue)}
+.btn-start{margin-left:auto;background:var(--accent);color:#1a1500;border:none;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:800;cursor:pointer;font-family:var(--font)}
+.ll{padding:0 16px;display:flex;flex-direction:column;gap:10px}
+.li{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform 0.15s}
+.li:active{transform:scale(0.98)}
+.li.locked{opacity:0.45;cursor:not-allowed}
+.lic{width:46px;height:46px;border-radius:12px;background:rgba(96,165,250,0.1);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.lii{flex:1;min-width:0}
+.lin{font-size:15px;font-weight:800;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lim{font-size:12px;color:var(--muted)}
+.lixp{font-size:12px;font-weight:700;color:var(--accent)}
+/* DICT */
+.dsearch{margin:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:12px 16px;display:flex;align-items:center;gap:10px}
+.dsearch input{background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:14px;flex:1}
+.dsearch input::placeholder{color:var(--muted)}
+.dlist{padding:0 16px;display:flex;flex-direction:column;gap:8px}
+.ditem{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;display:flex;align-items:center;gap:14px}
+.ddz{font-family:var(--dzfont);font-size:22px;color:var(--accent);min-width:80px;line-height:1.7}
+.dinfo{flex:1}
+.den{font-size:14px;font-weight:800}
+.drom{font-size:12px;color:var(--muted);margin-top:2px}
+.dcat{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;padding:2px 8px;border-radius:10px;background:rgba(96,165,250,0.1);color:var(--blue);flex-shrink:0}
+/* STATS */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:0 16px;margin-bottom:8px}
+.sc{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px}
+.sv{font-size:26px;font-weight:900;margin-bottom:2px}
+.sl{font-size:12px;color:var(--muted);font-weight:600}
+.sc.a .sv{color:var(--accent)}.sc.gr .sv{color:var(--green)}.sc.bl .sv{color:var(--blue)}.sc.pu .sv{color:var(--purple)}
+.brow{display:flex;gap:10px;padding:0 16px;overflow-x:auto;scrollbar-width:none}
+.brow::-webkit-scrollbar{display:none}
+.bi{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:6px}
+.bc{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;border:2px solid transparent}
+.bc.e{border-color:var(--accent);background:rgba(245,200,66,0.1)}
+.bc.lk{border-color:var(--border);background:var(--card);filter:grayscale(1) opacity(0.4)}
+.bn{font-size:10px;font-weight:700;color:var(--muted);text-align:center;width:60px}
+/* STORIES */
+.sc2{margin:0 16px 12px;background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform 0.15s}
+.sc2:active{transform:scale(0.99)}
+.sb{height:90px;display:flex;align-items:center;justify-content:center;font-size:44px}
+.si{padding:12px 16px}
+.st{font-size:15px;font-weight:800;margin-bottom:4px}
+.sm{font-size:12px;color:var(--muted)}
+/* PROFILE */
+.phdr{padding:24px 20px;text-align:center}
+.aring{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--orange));padding:3px;margin:0 auto 12px}
+.ain{width:100%;height:100%;border-radius:50%;background:var(--bg2);display:flex;align-items:center;justify-content:center;font-size:32px}
+.wgrid{display:flex;gap:6px;padding:0 20px;justify-content:center;margin-bottom:4px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:6px}
+.wc{width:36px;height:36px;border-radius:50%;background:var(--bg3);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px}
+.wc.dn{background:rgba(245,200,66,0.15);border-color:var(--accent)}
+.wc.td{border-color:var(--blue);background:rgba(96,165,250,0.1)}
+.wl{font-size:10px;color:var(--muted);font-weight:700}
+/* ONBOARDING */
+.onboard{display:none;position:fixed;inset:0;z-index:500;background:var(--bg);max-width:420px;left:50%;transform:translateX(-50%);flex-direction:column;align-items:center;justify-content:center;padding:32px 28px;text-align:center}
+.onboard.show{display:flex;animation:fadeIn 0.3s ease}
+.onboard-emoji{font-size:72px;margin-bottom:20px}
+.onboard-title{font-size:26px;font-weight:900;margin-bottom:8px;line-height:1.3}
+.onboard-sub{font-size:15px;color:var(--muted);margin-bottom:32px;line-height:1.6}
+.onboard-input{width:100%;background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:16px 18px;font-size:18px;font-weight:700;color:var(--text);font-family:var(--font);outline:none;text-align:center;margin-bottom:16px;transition:border-color 0.2s}
+.onboard-input:focus{border-color:var(--accent)}
+.onboard-input::placeholder{color:var(--muted);font-weight:600}
+/* STORY MODAL */
+.smod{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);max-width:420px;left:50%;transform:translateX(-50%);flex-direction:column;overflow:hidden}
+.smod.open{display:flex;animation:slideUp 0.25s ease}
+.smod-hdr{padding:16px 20px 0;display:flex;align-items:center;gap:12px;flex-shrink:0}
+.smod-title{flex:1;font-size:16px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.smod-body{flex:1;overflow-y:auto;padding:20px}
+.story-banner-lg{height:110px;display:flex;align-items:center;justify-content:center;font-size:54px;border-radius:var(--r);margin-bottom:20px}
+.story-mode-tabs{display:flex;gap:8px;margin-bottom:20px}
+.smt{flex:1;padding:9px;text-align:center;border-radius:var(--rs);border:1px solid var(--border);font-size:13px;font-weight:800;cursor:pointer;color:var(--muted);background:var(--card);font-family:var(--font);transition:all 0.2s}
+.smt.active{background:var(--accent);color:#1a1500;border-color:var(--accent)}
+.story-line{margin-bottom:14px;padding:14px 16px;background:var(--card);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:border-color 0.2s}
+.story-line.playing{border-color:var(--blue);background:rgba(96,165,250,0.07)}
+.sl-dz{font-family:var(--dzfont);font-size:22px;color:var(--text);line-height:1.9;margin-bottom:6px}
+.sl-en{font-size:13px;color:var(--muted);line-height:1.5}
+.sl-rom{font-size:12px;color:var(--blue);margin-top:3px;font-style:italic}
+.sl-speaker{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent);margin-bottom:6px}
+.vocab-section{margin-bottom:20px}
+.vocab-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.25);border-radius:14px;padding:4px 12px;font-size:13px;font-weight:700;color:var(--accent);margin:4px 4px 4px 0;cursor:pointer;font-family:var(--dzfont);transition:background 0.15s}
+.vocab-chip:active{background:rgba(245,200,66,0.2)}
+.vocab-popup{background:var(--bg2);border:1px solid rgba(245,200,66,0.2);border-radius:var(--rs);padding:12px 14px;margin-top:10px;display:none}
+.vocab-popup.show{display:block;animation:fadeIn 0.15s ease}
+.vocab-pop-dz{font-family:var(--dzfont);font-size:22px;color:var(--accent);line-height:1.7}
+.vocab-pop-en{font-size:14px;font-weight:800;margin-top:2px}
+.vocab-pop-rom{font-size:12px;color:var(--muted);margin-top:1px}
+.sq{background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:16px;margin-bottom:12px}
+.sq-num{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.sq-q{font-size:15px;font-weight:800;margin-bottom:12px;line-height:1.4}
+.sq-opts{display:flex;flex-direction:column;gap:8px}
+.sq-opt{background:var(--bg3);border:2px solid var(--border);border-radius:var(--rs);padding:11px 14px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:var(--text);text-align:left;transition:all 0.2s}
+.sq-opt.ok{border-color:var(--green);background:rgba(74,222,128,0.1);color:var(--green)}
+.sq-opt.bad{border-color:var(--accent2);background:rgba(255,107,107,0.1);color:var(--accent2)}
+.sq-opt.reveal{border-color:var(--green);background:rgba(74,222,128,0.07)}
+/* LESSON MODAL */
+.lmod{display:none;position:fixed;inset:0;z-index:200;background:var(--bg);max-width:420px;left:50%;transform:translateX(-50%);flex-direction:column}
+.lmod.open{display:flex;animation:slideUp 0.25s ease}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(30px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}
+.lhdr{padding:16px 16px 0;display:flex;align-items:center;gap:12px}
+.bcl{background:var(--card);border:1px solid var(--border);color:var(--muted);border-radius:10px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;flex-shrink:0}
+.ptrk{flex:1;background:var(--bg3);border-radius:20px;height:8px;overflow:hidden}
+.pfil{background:linear-gradient(90deg,var(--blue),var(--purple));height:100%;border-radius:20px;transition:width 0.4s cubic-bezier(.34,1.56,.64,1)}
+.hts{display:flex;gap:3px}
+.ht{font-size:18px;transition:transform 0.3s}
+.ht.lost{filter:grayscale(1);opacity:0.3;transform:scale(0.8)}
+.lbody{flex:1;padding:20px 20px 0;display:flex;flex-direction:column;overflow-y:auto}
+.qtl{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px}
+.qp{font-size:18px;font-weight:900;line-height:1.4;margin-bottom:8px}
+.qdz{font-family:var(--dzfont);font-size:30px;color:var(--accent);margin-bottom:4px;line-height:1.8}
+.qsub{font-size:13px;color:var(--muted);margin-bottom:16px}
+.abtn{display:inline-flex;align-items:center;gap:8px;background:rgba(96,165,250,0.1);border:1px solid rgba(96,165,250,0.3);border-radius:24px;padding:10px 18px;color:var(--blue);font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:var(--font)}
+.abtn.playing{animation:pulse 0.8s ease infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(96,165,250,0.4)}50%{box-shadow:0 0 0 8px transparent}}
+.ogrid{display:flex;flex-direction:column;gap:10px;padding-bottom:8px}
+.obtn{background:var(--card);border:2px solid var(--border);border-radius:var(--rs);padding:13px 16px;text-align:left;cursor:pointer;font-family:var(--font);font-size:15px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:12px;transition:border-color 0.2s,background 0.2s}
+.obtn.sel{border-color:var(--blue);background:rgba(96,165,250,0.08)}
+.obtn.ok{border-color:var(--green);background:rgba(74,222,128,0.1);color:var(--green)}
+.obtn.bad{border-color:var(--accent2);background:rgba(255,107,107,0.1);color:var(--accent2)}
+.ol{width:28px;height:28px;border-radius:8px;background:rgba(255,255,255,0.07);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0}
+.odz{font-family:var(--dzfont);font-size:22px;line-height:1.6}
+/* MATCH */
+.marea{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mbtn{background:var(--card);border:2px solid var(--border);border-radius:var(--rs);padding:12px 8px;text-align:center;cursor:pointer;font-family:var(--font);font-size:13px;font-weight:700;color:var(--text);transition:border-color 0.2s,background 0.2s;min-height:58px;display:flex;align-items:center;justify-content:center}
+.mbtn.act{border-color:var(--blue);background:rgba(96,165,250,0.1)}
+.mbtn.mat{border-color:var(--green);background:rgba(74,222,128,0.1);color:var(--green);cursor:default;opacity:0.7}
+.mbtn.wmatch{border-color:var(--accent2);background:rgba(255,107,107,0.1);animation:shake 0.3s ease}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.mdz{font-family:var(--dzfont);font-size:20px;line-height:1.6}
+/* MIC */
+.mica{display:flex;flex-direction:column;align-items:center;padding:16px 0;gap:14px}
+.micb{width:76px;height:76px;border-radius:50%;background:rgba(167,139,250,0.1);border:2px solid rgba(167,139,250,0.4);color:var(--purple);font-size:30px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.micb.rec{background:rgba(167,139,250,0.2);border-color:var(--purple);animation:rip 1s ease infinite}
+@keyframes rip{0%,100%{box-shadow:0 0 0 0 rgba(167,139,250,0.4)}50%{box-shadow:0 0 0 16px transparent}}
+.wvf{display:flex;align-items:center;gap:3px;height:40px}
+.wb{width:4px;border-radius:4px;background:var(--purple);transition:height 0.15s ease}
+/* FILL */
+.fopt{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+.fchip{background:var(--card);border:2px solid var(--border);border-radius:24px;padding:8px 16px;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:var(--text);transition:border-color 0.2s,background 0.2s}
+.fchip.sel{border-color:var(--blue);background:rgba(96,165,250,0.1)}
+.fchip.ok{border-color:var(--green);background:rgba(74,222,128,0.1);color:var(--green)}
+.fchip.bad{border-color:var(--accent2);background:rgba(255,107,107,0.1);color:var(--accent2)}
+.fsen{font-size:17px;font-weight:700;line-height:1.9;margin-bottom:14px}
+.fblank{display:inline-block;min-width:80px;border-bottom:2px solid var(--blue);color:var(--blue);font-family:var(--dzfont);font-size:22px;text-align:center;padding:0 6px;vertical-align:bottom}
+/* FEEDBACK */
+.fbbar{padding:14px 20px;flex-shrink:0}
+.fbok{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);border-radius:var(--r);padding:12px 16px;margin-bottom:10px}
+.fbbad{background:rgba(255,107,107,0.1);border:1px solid rgba(255,107,107,0.3);border-radius:var(--r);padding:12px 16px;margin-bottom:10px}
+.fbt{font-size:15px;font-weight:900;margin-bottom:2px}
+.fbt.ok{color:var(--green)}.fbt.bad{color:var(--accent2)}
+.fbs{font-size:13px;color:var(--muted)}
+.bcont{width:100%;background:var(--accent);color:#1a1500;border:none;border-radius:30px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:var(--font)}
+.bchk{width:100%;background:var(--bg3);border:2px solid var(--border);border-radius:30px;padding:15px;font-size:16px;font-weight:900;cursor:pointer;font-family:var(--font);color:var(--muted);transition:all 0.2s}
+.bchk.rdy{background:var(--blue);border-color:var(--blue);color:white}
+/* COMPLETE */
+.comp{display:flex;flex-direction:column;align-items:center;padding:32px 24px;text-align:center;flex:1;justify-content:center}
+.cemo{font-size:70px;margin-bottom:14px;animation:bnc 0.5s ease}
+@keyframes bnc{0%{transform:scale(0.5)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+.ctit{font-size:26px;font-weight:900;margin-bottom:6px}
+.csub{font-size:14px;color:var(--muted);margin-bottom:28px}
+.rrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;width:100%;margin-bottom:28px}
+.ri{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 10px}
+.rv{font-size:22px;font-weight:900}
+.rl{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--green);color:#0a2e19;border-radius:24px;padding:10px 20px;font-size:14px;font-weight:800;z-index:999;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div id="screen-home" class="screen active">
+  <div class="hdr">
+    <div class="streak-badge">🔥 <span id="streak-count">7</span> day streak</div>
+    <div class="greeting">ཀུ་ཟུ་ཟང་པོ་ལགས། — <span id="home-username">...</span></div>
+    <div class="sub">Keep your streak alive — 5 min today</div>
+    <div class="xp-wrap"><div class="xp-bar" id="xp-bar" style="width:64%"></div></div>
+    <div class="xp-lbl"><span>Level 3 · Beginner</span><span id="xp-label">320 / 500 XP</span></div>
+  </div>
+
+  <div class="today" onclick="openLesson(0)">
+    <div class="today-lbl">📅 Today's Lesson</div>
+    <div class="today-title">Basic Greetings</div>
+    <div class="today-sub">Learn hello, goodbye, thank you &amp; more</div>
+    <div class="today-foot">
+      <span class="pill g">⏱ 4 min</span>
+      <span class="pill b">+50 XP</span>
+      <button class="btn-start">Start →</button>
+    </div>
+  </div>
+
+  <div class="sec">Your Path</div>
+  <div class="ll">
+    <div class="li" style="border-color:rgba(74,222,128,0.3)" onclick="openLesson(2)">
+      <div class="lic" style="background:rgba(74,222,128,0.12);color:var(--green)">✅</div>
+      <div class="lii"><div class="lin">Numbers 1–10</div><div class="lim">གཅིག་ to བཅུ་ · 8 exercises</div></div>
+      <div class="lixp">+40 XP</div>
+    </div>
+    <div class="li" style="border-color:rgba(96,165,250,0.4)" onclick="openLesson(0)">
+      <div class="lic" style="background:rgba(245,200,66,0.1);color:var(--accent)">🎯</div>
+      <div class="lii"><div class="lin">Basic Greetings</div><div class="lim">Phrases &amp; etiquette · 6 exercises</div></div>
+      <div class="lixp">+50 XP</div>
+    </div>
+    <div class="li" onclick="openLesson(1)">
+      <div class="lic" style="background:rgba(167,139,250,0.1);color:var(--purple)">👨‍👩‍👧</div>
+      <div class="lii"><div class="lin">Family &amp; People</div><div class="lim">ཨམ་ · ཨ་ཕ་ vocabulary · 6 exercises</div></div>
+      <div class="lixp">+60 XP</div>
+    </div>
+    <div class="li locked">
+      <div class="lic">🍎</div>
+      <div class="lii"><div class="lin">Food &amp; Drink</div><div class="lim">Complete 2 more lessons</div></div>
+      <div style="color:var(--muted);font-size:18px">🔒</div>
+    </div>
+    <div class="li locked">
+      <div class="lic">🏔️</div>
+      <div class="lii"><div class="lin">Places &amp; Travel</div><div class="lim">Locked</div></div>
+      <div style="color:var(--muted);font-size:18px">🔒</div>
+    </div>
+  </div>
+</div>
+
+<!-- DICTIONARY -->
+<div id="screen-dict" class="screen">
+  <div class="hdr" style="padding-bottom:20px">
+    <div class="greeting" style="margin-bottom:4px">Dictionary</div>
+    <div class="sub">English ↔ Dzongkha reference · <span style="color:var(--accent)">40 words</span></div>
+  </div>
+  <div class="dsearch">
+    <span style="color:var(--muted);font-size:16px">🔍</span>
+    <input type="text" id="dict-input" placeholder="Search words…" oninput="filterDict()">
+  </div>
+  <div style="padding:0 16px 10px;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none" id="cat-filters"></div>
+  <div class="dlist" id="dict-list"></div>
+</div>
+
+<!-- STORIES -->
+<div id="screen-stories" class="screen">
+  <div class="hdr" style="padding-bottom:20px">
+    <div class="greeting" style="margin-bottom:4px">Stories</div>
+    <div class="sub">Real-life Dzongkha conversations</div>
+  </div>
+  <div style="height:14px"></div>
+  <div class="sc2" onclick="openStory(0)">
+    <div class="sb" style="background:linear-gradient(135deg,#1a2a4a,#0e1f3d)">🏡</div>
+    <div class="si"><div class="st">At the Market — ཚོང་ར་ནང།</div><div class="sm">Beginner · 3 min · Shopping phrases · 5 words</div></div>
+  </div>
+  <div class="sc2" onclick="openStory(1)">
+    <div class="sb" style="background:linear-gradient(135deg,#2a1a3a,#1d0e35)">🙏</div>
+    <div class="si"><div class="st">A Morning Greeting — ཞོགས་པའི་བཀྲ་ཤིས།</div><div class="sm">Beginner · 4 min · Greetings &amp; respect · 6 words</div></div>
+  </div>
+  <div class="sc2" onclick="openStory(2)">
+    <div class="sb" style="background:linear-gradient(135deg,#1a3a2a,#0e2d1d)">🍵</div>
+    <div class="si"><div class="st">Tea Time with Ama — ཨམ་མའི་དང་ཇ།</div><div class="sm">Intermediate · 5 min · Family conversation · 7 words</div></div>
+  </div>
+  <div class="sc2" style="opacity:0.4">
+    <div class="sb" style="background:var(--card)">🔒</div>
+    <div class="si"><div class="st">More stories — coming soon</div><div class="sm">Complete lessons to unlock</div></div>
+  </div>
+</div>
+
+<!-- ONBOARDING MODAL -->
+<div class="onboard" id="onboard-modal">
+  <div class="onboard-emoji">🇧🇹</div>
+  <div class="onboard-title">Welcome to<br>Dzongkha Learn!</div>
+  <div class="onboard-sub">The national language of Bhutan.<br>What is your name?</div>
+  <input class="onboard-input" id="onboard-name" type="text" placeholder="Enter your name…" maxlength="20" onkeydown="if(event.key==='Enter')saveUserName()">
+  <button class="bcont" onclick="saveUserName()" style="width:100%">Let's Start →</button>
+</div>
+
+<!-- STORY MODAL -->
+<div class="smod" id="story-modal">
+  <div class="smod-hdr">
+    <button class="bcl" onclick="closeStory()">✕</button>
+    <div class="smod-title" id="story-modal-title"></div>
+  </div>
+  <div class="smod-body" id="story-modal-body"></div>
+</div>
+
+<!-- PROGRESS -->
+<div id="screen-progress" class="screen">
+  <div class="hdr" style="padding-bottom:20px">
+    <div class="greeting" style="margin-bottom:4px">Progress</div>
+    <div class="sub">ལེགས་སྦྱར་ — Your learning journey</div>
+  </div>
+  <div class="sec">This Week</div>
+  <div class="wgrid">
+    <div class="wd"><div class="wc dn">🔥</div><div class="wl">Mon</div></div>
+    <div class="wd"><div class="wc dn">🔥</div><div class="wl">Tue</div></div>
+    <div class="wd"><div class="wc dn">🔥</div><div class="wl">Wed</div></div>
+    <div class="wd"><div class="wc dn">🔥</div><div class="wl">Thu</div></div>
+    <div class="wd"><div class="wc dn">🔥</div><div class="wl">Fri</div></div>
+    <div class="wd"><div class="wc td">📍</div><div class="wl">Sat</div></div>
+    <div class="wd"><div class="wc"></div><div class="wl">Sun</div></div>
+  </div>
+  <div class="sec">Stats</div>
+  <div class="sgrid">
+    <div class="sc a"><div class="sv">🔥 7</div><div class="sl">Day Streak</div></div>
+    <div class="sc gr"><div class="sv">320</div><div class="sl">Total XP</div></div>
+    <div class="sc bl"><div class="sv">12</div><div class="sl">Lessons Done</div></div>
+    <div class="sc pu"><div class="sv">84%</div><div class="sl">Accuracy</div></div>
+  </div>
+  <div class="sec">Badges</div>
+  <div class="brow">
+    <div class="bi"><div class="bc e">🔥</div><div class="bn">7 Day Streak</div></div>
+    <div class="bi"><div class="bc e">🌱</div><div class="bn">First Lesson</div></div>
+    <div class="bi"><div class="bc e">🔤</div><div class="bn">Alphabet Pro</div></div>
+    <div class="bi"><div class="bc lk">🏆</div><div class="bn">30 Day Streak</div></div>
+    <div class="bi"><div class="bc lk">⚡</div><div class="bn">Speed Learner</div></div>
+    <div class="bi"><div class="bc lk">🌟</div><div class="bn">Level 5</div></div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div id="screen-profile" class="screen">
+  <div class="phdr">
+    <div class="aring"><div class="ain">🧑</div></div>
+    <div style="font-size:20px;font-weight:900" id="profile-username">...</div>
+    <div style="font-size:14px;color:var(--accent);font-weight:700">Level 3 · Beginner Learner</div>
+  </div>
+  <div class="sec">Family / Shared Profiles</div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px;margin-bottom:8px">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer">
+      <div style="width:44px;height:44px;border-radius:50%;background:rgba(74,222,128,0.1);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">👶</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:800">Pema (Child)</div><div style="font-size:12px;color:var(--muted)">Level 1 · 3 day streak · 40 XP</div></div>
+      <div style="color:var(--muted);font-size:18px">›</div>
+    </div>
+    <div style="background:var(--card);border:1px dashed var(--border);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;cursor:pointer" onclick="showToast('Add family member — coming soon!')">
+      <div style="width:44px;height:44px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px">➕</div>
+      <div style="flex:1;color:var(--muted);font-size:14px;font-weight:700">Add family member</div>
+    </div>
+  </div>
+  <div class="sec">Settings</div>
+  <div style="padding:0 16px;display:flex;flex-direction:column;gap:2px">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:12px 12px 4px 4px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer" onclick="changeName()">
+      <span style="font-size:15px;font-weight:700">✏️ Change Name</span>
+      <span style="color:var(--muted);font-size:13px;font-weight:700" id="settings-username"></span>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:15px;font-weight:700">🔔 Daily Reminder</span><span style="color:var(--green);font-size:13px;font-weight:700">8:00 AM</span>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:4px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:15px;font-weight:700">🌐 Interface Language</span><span style="color:var(--muted);font-size:13px;font-weight:700">English</span>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:4px 4px 12px 12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:15px;font-weight:700">🎵 Sound Effects</span><span style="color:var(--green);font-size:13px;font-weight:700">On</span>
+    </div>
+  </div>
+</div>
+
+  <div class="sec">Install App</div>
+  <div style="padding:0 16px;margin-bottom:20px">
+    <div id="install-btn" style="display:none;background:linear-gradient(135deg,#2a2050,#1e2d50);border:1px solid rgba(96,165,250,0.3);border-radius:var(--r);padding:16px;align-items:center;gap:14px;cursor:pointer" onclick="installApp()">
+      <div style="width:46px;height:46px;border-radius:12px;background:rgba(96,165,250,0.15);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📲</div>
+      <div style="flex:1"><div style="font-size:15px;font-weight:800">Add to Home Screen</div><div style="font-size:12px;color:var(--muted);margin-top:2px">Install as a phone app — works offline</div></div>
+    </div>
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;">
+      <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:10px">📱 How to install on iPhone / Android</div>
+      <div style="font-size:13px;color:var(--muted);line-height:1.7">
+        <b style="color:var(--text)">iPhone:</b> Tap the Share button in Safari → "Add to Home Screen"<br>
+        <b style="color:var(--text)">Android:</b> Tap the menu (⋮) in Chrome → "Add to Home Screen" or "Install App"
+      </div>
+    </div>
+  </div>
+
+<!-- LESSON MODAL -->
+<div class="lmod" id="lesson-modal">
+  <div class="lhdr">
+    <button class="bcl" onclick="closeLesson()">✕</button>
+    <div class="ptrk"><div class="pfil" id="lesson-progress"></div></div>
+    <div class="hts" id="hearts"></div>
+  </div>
+  <div class="lbody" id="lesson-body"></div>
+  <div class="fbbar" id="feedback-bar"></div>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-item active" onclick="switchScreen('home',this)"><div class="nav-icon">🏠</div>Learn</div>
+  <div class="nav-item" onclick="switchScreen('dict',this)"><div class="nav-icon">📚</div>Dict</div>
+  <div class="nav-item" onclick="switchScreen('stories',this)"><div class="nav-icon">📖</div>Stories</div>
+  <div class="nav-item" onclick="switchScreen('progress',this)"><div class="nav-icon">📊</div>Progress</div>
+  <div class="nav-item" onclick="switchScreen('profile',this)"><div class="nav-icon">👤</div>Profile</div>
+</nav>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── VERIFIED DICTIONARY ──────────────────────────────────────────────────────
+// Sources: English-Dzongkha Pocket Dictionary (DDC 2011), Dzongkha numerals Wikipedia,
+// bhutan.me phrasebook, gesar-travel.com, wandertours.com, wikivoyage Dzongkha phrasebook
+const DICT=[
+  // GREETINGS — verified from multiple authoritative Bhutanese sources
+  {dz:'ཀུ་ཟུ་ཟང་པོ་ལགས།',en:'Hello / Good day (formal)',rom:'Kuzuzangpo la',cat:'Greeting'},
+  {dz:'ཀ་དྲིན་ཆེ་ལགས།',en:'Thank you',rom:'Kadrinche la',cat:'Greeting'},
+  {dz:'ལོག་འཇོག་གནང།',en:'Goodbye',rom:'Log jog nang',cat:'Greeting'},
+  {dz:'མཐོང་འཕྲད་ཀྱི་དགའ།',en:'Nice to meet you',rom:'Thong trad gi ga',cat:'Greeting'},
+  {dz:'ཐེན་མོ་དེ་ལེགས།',en:'Good night',rom:'Tsen mo de lek',cat:'Greeting'},
+  {dz:'ཞོགས་པ་བདེ་ལེགས།',en:'Good morning',rom:'Zhogpa de lek',cat:'Greeting'},
+  {dz:'ལེགས་ཤོམ།',en:'I am fine / Good',rom:'Legshom',cat:'Greeting'},
+  {dz:'བདེ་ལེགས་ཡིན་ནམ།',en:'How are you?',rom:'De lek yin nam?',cat:'Greeting'},
+  {dz:'བཀྲ་ཤིས་བདེ་ལེགས།',en:'Good luck / Blessings',rom:'Tashi Delek',cat:'Greeting'},
+  {dz:'དགྱེས་པར་ལོག་འཇོག།',en:"You're welcome",rom:'Gyepar log jog',cat:'Greeting'},
+  {dz:'གཞི་ནས་དགའ།',en:'I am happy',rom:'Zhi ne ga',cat:'Greeting'},
+  {dz:'ཁྱེད་རང་ག་ཏེ་ལས་ཡིན།',en:'Where are you from?',rom:'Choe rang gate le yin?',cat:'Greeting'},
+  // NUMBERS — verified from Dzongkha numerals Wikipedia & DDC
+  {dz:'གཅིག',en:'One (1)',rom:'Chig',cat:'Number'},
+  {dz:'གཉིས།',en:'Two (2)',rom:'Nyi',cat:'Number'},
+  {dz:'གསུམ།',en:'Three (3)',rom:'Sum',cat:'Number'},
+  {dz:'བཞི།',en:'Four (4)',rom:'Zhi',cat:'Number'},
+  {dz:'ལྔ།',en:'Five (5)',rom:'Nga',cat:'Number'},
+  {dz:'དྲུག',en:'Six (6)',rom:'Drug',cat:'Number'},
+  {dz:'བདུན།',en:'Seven (7)',rom:'Dün',cat:'Number'},
+  {dz:'བརྒྱད།',en:'Eight (8)',rom:'Gye',cat:'Number'},
+  {dz:'དགུ།',en:'Nine (9)',rom:'Gu',cat:'Number'},
+  {dz:'བཅུ་ཐམ།',en:'Ten (10)',rom:'Cu tham',cat:'Number'},
+  // FAMILY — verified from dictionary scan images (DDC Pocket Dictionary)
+  // father = གཞའ་ཟི (Apa), mother = ཨ་ནེ། / ཨམ་མ། (Ane / Ama)
+  {dz:'གཞའ་ཟི།',en:'Father',rom:'Apa',cat:'Family'},
+  {dz:'ཨམ་མ།',en:'Mother',rom:'Ama',cat:'Family'},
+  {dz:'ཨ་ནེ།',en:'Mother (also: Ane)',rom:'Ane',cat:'Family'},
+  {dz:'ཨམ་སྲུ།',en:'Wife / Woman',rom:'Am su',cat:'Family'},
+  {dz:'ཨ་ཅི།',en:'Aunt (father\'s sister)',rom:'Achi',cat:'Family'},
+  {dz:'ཨ་ཞང།',en:'Uncle (mother\'s brother)',rom:'Azhang',cat:'Family'},
+  {dz:'བུ།',en:'Son / Child',rom:'Bu',cat:'Family'},
+  {dz:'བུམོ།',en:'Daughter',rom:'Bumo',cat:'Family'},
+  {dz:'ནུ་བོ།',en:'Younger brother',rom:'Nubo',cat:'Family'},
+  {dz:'ནུ་མ།',en:'Younger sister',rom:'Numa',cat:'Family'},
+  {dz:'ཨ་ཅོ།',en:'Elder brother',rom:'Acho',cat:'Family'},
+  {dz:'ཨ་ཇི།',en:'Elder sister',rom:'Aji',cat:'Family'},
+  // COLOURS
+  {dz:'དམར་པོ།',en:'Red',rom:'Marpo',cat:'Colour'},
+  {dz:'སྔོན་པོ།',en:'Blue',rom:'Ngonpo',cat:'Colour'},
+  {dz:'སེར་པོ།',en:'Yellow',rom:'Serpo',cat:'Colour'},
+  {dz:'ལྗང་ཁུ།',en:'Green',rom:'Janku',cat:'Colour'},
+  {dz:'ནག་པོ།',en:'Black',rom:'Nagpo',cat:'Colour'},
+  {dz:'དཀར་པོ།',en:'White',rom:'Karpo',cat:'Colour'},
+  // COMMON
+  {dz:'ཆུ།',en:'Water',rom:'Chu',cat:'Common'},
+  {dz:'ཟས།',en:'Food / Meal',rom:'Zha',cat:'Common'},
+  {dz:'མི།',en:'Person / Human',rom:'Mi',cat:'Common'},
+  {dz:'ཁྱིམ།',en:'House / Home',rom:'Khyim',cat:'Common'},
+  {dz:'ལས་ཀ།',en:'Work',rom:'Leka',cat:'Common'},
+];
+
+const CATS=['All',...new Set(DICT.map(d=>d.cat))];
+let activeCat='All';
+
+function renderCatFilters(){
+  document.getElementById('cat-filters').innerHTML=CATS.map(c=>`
+    <button onclick="setCat('${c}')" id="cf-${c}" style="background:${c===activeCat?'var(--accent)':'var(--card)'};color:${c===activeCat?'#1a1500':'var(--muted)'};border:1px solid ${c===activeCat?'var(--accent)':'var(--border)'};border-radius:20px;padding:6px 14px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:var(--font)">${c}</button>`).join('');
+}
+function setCat(c){activeCat=c;renderCatFilters();filterDict()}
+function renderDict(filter=''){
+  const f=filter.toLowerCase();
+  const items=DICT.filter(d=>(activeCat==='All'||d.cat===activeCat)&&(d.en.toLowerCase().includes(f)||d.rom.toLowerCase().includes(f)||d.dz.includes(f)));
+  document.getElementById('dict-list').innerHTML=items.map(d=>`
+    <div class="ditem">
+      <div class="ddz">${d.dz}</div>
+      <div class="dinfo"><div class="den">${d.en}</div><div class="drom">${d.rom}</div></div>
+      <span class="dcat">${d.cat}</span>
+    </div>`).join('')||(items.length===0?'<div style="text-align:center;padding:32px;color:var(--muted);font-size:14px">No results found</div>':'');
+}
+function filterDict(){renderDict(document.getElementById('dict-input').value)}
+renderCatFilters();renderDict();
+
+// ── LESSON DATA (verified vocabulary) ───────────────────────────────────────
+const LESSONS=[
+{title:'Basic Greetings',xp:50,questions:[
+  {type:'listen-choose',prompt:'What does this Dzongkha phrase mean?',
+   dzongkha:'ཀུ་ཟུ་ཟང་པོ་ལགས།',audio:'Kuzuzangpo la',
+   options:['Hello / Good day','Thank you','Goodbye','Good night'],correct:0},
+  {type:'match',prompt:'Match each phrase to its meaning',
+   pairs:[{dz:'ཀུ་ཟུ་ཟང་པོ།',en:'Hello'},{dz:'ཀ་དྲིན་ཆེ།',en:'Thank you'},{dz:'ལོག་འཇོག།',en:'Goodbye'},{dz:'ལེགས་ཤོམ།',en:'I am fine'}]},
+  {type:'translate',prompt:'How do you say "Thank you" in Dzongkha?',
+   options:['ཀ་དྲིན་ཆེ་ལགས།','ཀུ་ཟུ་ཟང་པོ།','ལོག་འཇོག།','ལེགས་ཤོམ།'],correct:0,optionType:'dz'},
+  {type:'listen-choose',prompt:'What does this phrase mean?',
+   dzongkha:'བཀྲ་ཤིས་བདེ་ལེགས།',audio:'Tashi Delek',
+   options:['Good morning','Good luck / Blessings','Good night','Thank you'],correct:1},
+  {type:'speak',prompt:'Say this greeting out loud:',
+   dzongkha:'ཀུ་ཟུ་ཟང་པོ་ལགས།',romanized:'Kuzuzangpo la',meaning:'Hello / Good day (formal)'},
+  {type:'fill',prompt:'Complete the Dzongkha sentence:',
+   sentence:'ང་ _____ ཨིན།',sentenceEn:'I am _____.',
+   blank:'ལེགས་ཤོམ།',blankMeaning:'fine',
+   options:['ལེགས་ཤོམ།','ཆུ།','ཟས།','ཐིམ་ཕུ།'],correct:0}
+]},
+{title:'Family & People',xp:60,questions:[
+  {type:'listen-choose',prompt:'What does this Dzongkha word mean?',
+   dzongkha:'ཨམ་མ།',audio:'Ama',
+   options:['Father','Mother','Sister','Uncle'],correct:1},
+  {type:'match',prompt:'Match the family words',
+   pairs:[{dz:'གཞའ་ཟི།',en:'Father'},{dz:'ཨམ་མ།',en:'Mother'},{dz:'ཨ་ཅོ།',en:'Elder brother'},{dz:'བུམོ།',en:'Daughter'}]},
+  {type:'translate',prompt:'How do you say "Elder sister"?',
+   options:['ཨ་ཇི།','ཨ་ཅོ།','ནུ་མ།','ཨམ་མ།'],correct:0,optionType:'dz'},
+  {type:'listen-choose',prompt:'What does this word mean?',
+   dzongkha:'ཨ་ཞང།',audio:'Azhang',
+   options:['Aunt','Uncle','Grandfather','Cousin'],correct:1},
+  {type:'speak',prompt:'Say this family word:',
+   dzongkha:'ཨམ་མ།',romanized:'Ama',meaning:'Mother'},
+  {type:'match',prompt:'Match more family words',
+   pairs:[{dz:'ནུ་བོ།',en:'Younger brother'},{dz:'ནུ་མ།',en:'Younger sister'},{dz:'བུ།',en:'Son / Child'},{dz:'ཨ་ཅི།',en:'Aunt'}]}
+]},
+{title:'Numbers 1–10',xp:40,questions:[
+  {type:'listen-choose',prompt:'What number is this?',
+   dzongkha:'གཅིག',audio:'Chig',
+   options:['One','Two','Three','Four'],correct:0},
+  {type:'match',prompt:'Match numbers to Dzongkha',
+   pairs:[{dz:'གཅིག',en:'1 — One'},{dz:'གཉིས།',en:'2 — Two'},{dz:'གསུམ།',en:'3 — Three'},{dz:'བཞི།',en:'4 — Four'}]},
+  {type:'translate',prompt:'Which is Dzongkha for "Five"?',
+   options:['ལྔ།','དྲུག','བདུན།','བཞི།'],correct:0,optionType:'dz'},
+  {type:'listen-choose',prompt:'What number is this?',
+   dzongkha:'བདུན།',audio:'Dün',
+   options:['Five','Six','Seven','Eight'],correct:2},
+  {type:'match',prompt:'Match more numbers',
+   pairs:[{dz:'ལྔ།',en:'5 — Five'},{dz:'དྲུག',en:'6 — Six'},{dz:'བདུན།',en:'7 — Seven'},{dz:'བརྒྱད།',en:'8 — Eight'}]},
+  {type:'listen-choose',prompt:'What number is this?',
+   dzongkha:'བཅུ་ཐམ།',audio:'Cu tham',
+   options:['Eight','Nine','Ten','Eleven'],correct:2},
+  {type:'speak',prompt:'Count 1–5 out loud:',
+   dzongkha:'གཅིག · གཉིས · གསུམ · བཞི · ལྔ',romanized:'Chig · Nyi · Sum · Zhi · Nga',meaning:'One · Two · Three · Four · Five'},
+  {type:'fill',prompt:'Fill in the blank: 9 in Dzongkha is _____',
+   sentence:'Nine = _____',sentenceEn:'Nine = _____',
+   blank:'དགུ།',blankMeaning:'9',
+   options:['དགུ།','བདུན།','བརྒྱད།','བཅུ་ཐམ།'],correct:0}
+]}
+];
+
+// ── ENGINE ───────────────────────────────────────────────────────────────────
+let CL=null,CQ=0,hearts=3,score=0,sel=null,answered=false,mPend=null,mState={matched:[]},fSel=null;
+
+function switchScreen(id,el){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('screen-'+id).classList.add('active');el.classList.add('active');
+}
+function openLesson(i){
+  CL=LESSONS[i];CQ=0;hearts=3;score=0;sel=null;answered=false;mPend=null;mState={matched:[]};fSel=null;
+  document.getElementById('lesson-modal').classList.add('open');RQ();
+}
+function closeLesson(){document.getElementById('lesson-modal').classList.remove('open')}
+function RH(){let h='';for(let i=0;i<3;i++)h+=`<span class="ht${i>=hearts?' lost':''}">❤️</span>`;document.getElementById('hearts').innerHTML=h}
+function RP(){document.getElementById('lesson-progress').style.width=(CQ/CL.questions.length*100)+'%'}
+function RQ(){RH();RP();answered=false;sel=null;mPend=null;mState={matched:[]};fSel=null;
+  const q=CL.questions[CQ],body=document.getElementById('lesson-body'),fb=document.getElementById('feedback-bar');
+  const L=['A','B','C','D'];
+  if(q.type==='listen-choose'){
+    body.innerHTML=`<div class="qtl">🔊 Listen &amp; Choose</div><div class="qp">${q.prompt}</div><div class="qdz">${q.dzongkha}</div><button class="abtn" id="abtn" onclick="playA('${q.audio}')">▶ Tap to hear · ${q.audio}</button><div class="ogrid" id="opts"></div>`;
+    q.options.forEach((o,i)=>document.getElementById('opts').innerHTML+=`<button class="obtn" onclick="selOpt(${i})" id="o${i}"><span class="ol">${L[i]}</span>${o}</button>`);
+    fb.innerHTML=`<button class="bchk" id="cbtn" onclick="checkA()" disabled>Check Answer</button>`;
+  } else if(q.type==='translate'){
+    body.innerHTML=`<div class="qtl">🔤 Translate</div><div class="qp">${q.prompt}</div><div class="ogrid" id="opts"></div>`;
+    q.options.forEach((o,i)=>document.getElementById('opts').innerHTML+=`<button class="obtn" onclick="selOpt(${i})" id="o${i}"><span class="ol">${L[i]}</span><span class="${q.optionType==='dz'?'odz':''}">${o}</span></button>`);
+    fb.innerHTML=`<button class="bchk" id="cbtn" onclick="checkA()" disabled>Check Answer</button>`;
+  } else if(q.type==='match'){
+    body.innerHTML=`<div class="qtl">🔗 Match Pairs</div><div class="qp">${q.prompt}</div><div class="marea" id="marea"></div>`;
+    const sh=shuffleArr([...q.pairs]);const area=document.getElementById('marea');
+    q.pairs.forEach((p,i)=>area.innerHTML+=`<button class="mbtn" id="dz-${i}" onclick="mClick('dz',${i})"><span class="mdz">${p.dz}</span></button>`);
+    sh.forEach(p=>{const i=q.pairs.findIndex(x=>x.en===p.en);area.innerHTML+=`<button class="mbtn" id="en-${i}" onclick="mClick('en',${i})">${p.en}</button>`});
+    fb.innerHTML=`<div style="text-align:center;font-size:13px;color:var(--muted);padding-top:8px">Match all pairs to continue</div>`;
+  } else if(q.type==='speak'){
+    body.innerHTML=`<div class="qtl">🎤 Speaking Practice</div><div class="qp">${q.prompt}</div><div class="qdz">${q.dzongkha}</div><div class="qsub">${q.romanized}</div><div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:var(--rs);padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--muted)">💡 <strong style="color:var(--text)">${q.meaning}</strong></div><div class="mica"><div class="micb" id="micb" onclick="toggleMic()">🎤</div><div style="font-size:14px;color:var(--muted);font-weight:600" id="micl">Tap to start speaking</div><div class="wvf" id="wvf">${Array(12).fill(0).map((_,i)=>`<div class="wb" id="wb${i}" style="height:6px"></div>`).join('')}</div></div>`;
+    fb.innerHTML=`<button class="bchk rdy" onclick="speakDone()">✓ I said it! Continue</button>`;
+  } else if(q.type==='fill'){
+    body.innerHTML=`<div class="qtl">✍️ Fill in the Blank</div><div class="qp">${q.prompt}</div><div class="fsen">${q.sentence.replace('_____','<span class="fblank" id="fdisp">?</span>')}</div><div style="font-size:13px;color:var(--muted);margin-bottom:16px">${q.sentenceEn}</div><div class="fopt" id="fopts"></div>`;
+    q.options.forEach((o,i)=>document.getElementById('fopts').innerHTML+=`<button class="fchip" onclick="selFill(${i},'${o}')" id="fc${i}">${o}</button>`);
+    fb.innerHTML=`<button class="bchk" id="cbtn" onclick="checkFill()" disabled>Check Answer</button>`;
+  }
+}
+let mT=null;
+function toggleMic(){
+  const b=document.getElementById('micb'),l=document.getElementById('micl');
+  b.classList.toggle('rec');
+  if(b.classList.contains('rec')){l.textContent='Listening…';mT=setInterval(()=>{for(let i=0;i<12;i++){const e=document.getElementById('wb'+i);if(e)e.style.height=(4+Math.random()*28)+'px'}},100);setTimeout(()=>{if(b.classList.contains('rec'))toggleMic()},3000)}
+  else{l.textContent='Tap to try again';clearInterval(mT);for(let i=0;i<12;i++){const e=document.getElementById('wb'+i);if(e)e.style.height='6px'}}
+}
+function speakDone(){score++;document.getElementById('feedback-bar').innerHTML=`<div class="fbok"><div class="fbt ok">✓ Great practice!</div><div class="fbs">Speaking exercise complete</div></div><button class="bcont" onclick="NQ()">Continue</button>`}
+function playA(t){
+  const b=document.getElementById('abtn');if(!b)return;
+  b.classList.add('playing');b.textContent='♪ Playing…';
+  if('speechSynthesis' in window){const u=new SpeechSynthesisUtterance(t);u.lang='en';u.rate=0.75;u.onend=()=>{b.classList.remove('playing');b.textContent=`▶ Tap to hear · ${t}`};speechSynthesis.speak(u)}
+  else setTimeout(()=>{b.classList.remove('playing');b.textContent=`▶ Tap to hear · ${t}`},1500);
+}
+function selOpt(i){if(answered)return;sel=i;document.querySelectorAll('.obtn').forEach(b=>b.classList.remove('sel'));document.getElementById('o'+i).classList.add('sel');const c=document.getElementById('cbtn');if(c){c.disabled=false;c.classList.add('rdy')}}
+function checkA(){if(answered||sel===null)return;answered=true;const q=CL.questions[CQ],ok=sel===q.correct;
+  document.getElementById('o'+sel).classList.remove('sel');document.getElementById('o'+sel).classList.add(ok?'ok':'bad');
+  if(!ok){document.getElementById('o'+q.correct).classList.add('ok');hearts=Math.max(0,hearts-1);RH()}else score++;
+  document.getElementById('feedback-bar').innerHTML=ok
+    ?`<div class="fbok"><div class="fbt ok">✓ Correct!</div><div class="fbs">Well done!</div></div><button class="bcont" onclick="NQ()">Continue</button>`
+    :`<div class="fbbad"><div class="fbt bad">✗ Not quite</div><div class="fbs">Correct answer highlighted above</div></div><button class="bcont" onclick="NQ()">Continue</button>`;
+}
+function selFill(i,o){fSel=i;document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('sel'));document.getElementById('fc'+i).classList.add('sel');document.getElementById('fdisp').textContent=o;const c=document.getElementById('cbtn');if(c){c.disabled=false;c.classList.add('rdy')}}
+function checkFill(){if(fSel===null)return;answered=true;const q=CL.questions[CQ],ok=fSel===q.correct;
+  document.getElementById('fc'+fSel).classList.add(ok?'ok':'bad');
+  if(!ok){hearts=Math.max(0,hearts-1);RH()}else score++;
+  document.getElementById('feedback-bar').innerHTML=ok
+    ?`<div class="fbok"><div class="fbt ok">✓ Correct!</div><div class="fbs">${q.blank} = ${q.blankMeaning}</div></div><button class="bcont" onclick="NQ()">Continue</button>`
+    :`<div class="fbbad"><div class="fbt bad">✗ Not quite</div><div class="fbs">Answer: "${q.blank}"</div></div><button class="bcont" onclick="NQ()">Continue</button>`;
+}
+function mClick(type,idx){
+  const q=CL.questions[CQ];if(mState.matched.includes(idx))return;
+  if(!mPend){mPend={type,idx};document.getElementById(type+'-'+idx).classList.add('act');return}
+  if(mPend.type===type){document.getElementById(mPend.type+'-'+mPend.idx).classList.remove('act');mPend={type,idx};document.getElementById(type+'-'+idx).classList.add('act');return}
+  const fi=mPend.idx,si=idx;document.getElementById(mPend.type+'-'+fi).classList.remove('act');
+  if(fi===si){
+    document.getElementById('dz-'+fi).classList.add('mat');document.getElementById('en-'+fi).classList.add('mat');
+    mState.matched.push(fi);score++;
+    if(mState.matched.length===q.pairs.length)setTimeout(NQ,600);
+  } else {
+    const di=mPend.type==='dz'?fi:si,ei=mPend.type==='en'?fi:si;
+    document.getElementById('dz-'+di).classList.add('wmatch');document.getElementById('en-'+ei).classList.add('wmatch');
+    hearts=Math.max(0,hearts-1);RH();
+    setTimeout(()=>document.querySelectorAll('.mbtn').forEach(b=>b.classList.remove('wmatch','act')),500);
+  }
+  mPend=null;
+}
+function NQ(){fSel=null;CQ++;if(CQ>=CL.questions.length)showComp();else RQ()}
+function showComp(){
+  const tot=CL.questions.length,acc=Math.round(score/tot*100),xp=Math.round(CL.xp*(acc/100));
+  document.getElementById('lesson-body').innerHTML=`<div class="comp"><div class="cemo">${acc===100?'🏆':acc>=70?'⭐':'👍'}</div><div class="ctit">Lesson Complete!</div><div class="csub">${acc===100?'ཀུ་ཟུ་ཟང་པོ། — Perfect score!':'Good work! Keep practicing.'}</div><div class="rrow"><div class="ri"><div class="rv" style="color:var(--accent)">+${xp}</div><div class="rl">XP Earned</div></div><div class="ri"><div class="rv" style="color:var(--green)">${acc}%</div><div class="rl">Accuracy</div></div><div class="ri"><div class="rv" style="color:var(--blue)">${hearts}</div><div class="rl">Hearts left</div></div></div><button class="bcont" onclick="finishL(${xp})">Back to Home</button></div>`;
+  document.getElementById('feedback-bar').innerHTML='';
+  document.getElementById('lesson-progress').style.width='100%';
+}
+function finishL(xp){
+  closeLesson();
+  const cur=320+xp;
+  document.getElementById('xp-bar').style.width=Math.min(100,cur/500*100)+'%';
+  document.getElementById('xp-label').textContent=cur+' / 500 XP';
+  showToast('🎉 +'+xp+' XP earned!');
+}
+
+// ── STORY DATA ───────────────────────────────────────────────────────────────
+const STORIES=[
+{
+  title:'At the Market',
+  titleDz:'ཚོང་ར་ནང།',
+  emoji:'🏡',
+  bg:'linear-gradient(135deg,#1a2a4a,#0e1f3d)',
+  level:'Beginner',
+  vocab:[
+    {dz:'ཚོང་ར།',en:'Market',rom:'Tsong ra'},
+    {dz:'གོང།',en:'Price',rom:'Gong'},
+    {dz:'ཆེ་ལྷག',en:'Too expensive',rom:'Che lhag'},
+    {dz:'ཅི་རིན།',en:'How much?',rom:'Chi rin?'},
+    {dz:'ཉོ།',en:'Buy',rom:'Nyo'},
+  ],
+  lines:[
+    {speaker:'Dorji',dz:'ཀུ་ཟུ་ཟང་པོ་ལགས། ཚོང་ར་ནང་གི་འབྲུམ་བུ་ཅི་རིན་ཨིན་ནམ།',rom:'Kuzuzangpo la. Tsong ra nang gi drim bu chi rin in nam?',en:'Hello! How much are the apples at the market?'},
+    {speaker:'Vendor',dz:'འབྲུམ་བུ་གཅིག་ལུ་ངུལ་ཀྲམ་གཅིག་ཨིན།',rom:'Drim bu chig lu ngultram chig in.',en:'One apple is one ngultrum.'},
+    {speaker:'Dorji',dz:'ཆེ་ལྷག་འདུག། ལྔ་ལུ་ངུལ་ཀྲམ་བཞི་ཐོབ་ཨིན་ནམ།',rom:'Che lhag dug. Nga lu ngultram zhi thob in nam?',en:'That is too expensive. Can I get five for four ngultrum?'},
+    {speaker:'Vendor',dz:'ལེགས་ཤོམ། ལྔ་ལུ་ངུལ་ཀྲམ་བཞི་ཐོབ།',rom:'Legshom. Nga lu ngultram zhi thob.',en:'Okay! You can have five for four ngultrum.'},
+    {speaker:'Dorji',dz:'ཀ་དྲིན་ཆེ་ལགས། ལེགས་ཤོམ་འདུག',rom:'Kadrinche la. Legshom dug.',en:'Thank you! That is good.'},
+  ],
+  quiz:[
+    {q:'What does Dorji want to buy?',opts:['Rice','Apples','Tea','Fish'],correct:1},
+    {q:'How much does the vendor first ask for one apple?',opts:['2 ngultrum','5 ngultrum','1 ngultrum','3 ngultrum'],correct:2},
+    {q:'What does ཆེ་ལྷག mean?',opts:['Very cheap','Too expensive','Very good','Thank you'],correct:1},
+    {q:'How many apples does Dorji get for 4 ngultrum?',opts:['3','4','5','6'],correct:2},
+  ]
+},
+{
+  title:'A Morning Greeting',
+  titleDz:'ཞོགས་པའི་བཀྲ་ཤིས།',
+  emoji:'🙏',
+  bg:'linear-gradient(135deg,#2a1a3a,#1d0e35)',
+  level:'Beginner',
+  vocab:[
+    {dz:'ཞོགས་པ།',en:'Morning',rom:'Zhogpa'},
+    {dz:'བདེ་ལེགས།',en:'Well / Good',rom:'De lek'},
+    {dz:'ལས་ཀ།',en:'Work',rom:'Leka'},
+    {dz:'གཏང་།',en:'Go / Send',rom:'Tang'},
+    {dz:'བཀྲ་ཤིས།',en:'Blessing / Auspicious',rom:'Tashi'},
+    {dz:'ཕྱིར།',en:'Later / Again',rom:'Chir'},
+  ],
+  lines:[
+    {speaker:'Pema',dz:'ཞོགས་པ་བདེ་ལེགས། ཁྱེད་རང་བདེ་ལེགས་ཡིན་ནམ།',rom:'Zhogpa de lek. Choe rang de lek yin nam?',en:'Good morning! Are you well?'},
+    {speaker:'Tashi',dz:'ལེགས་ཤོམ། ཀ་དྲིན་ཆེ། ཁྱེད་རང་ག་ཏེ་འགྱོ་གི་ཡིན།',rom:'Legshom. Kadrinche. Choe rang gate gyo gi yin?',en:'I am fine. Thank you. Where are you going?'},
+    {speaker:'Pema',dz:'ང་ལས་ཀ་ལུ་འགྱོ་གི་ཡིན། ཁྱེད་རང་ག་རེ་འབད་གི་ཡིན།',rom:'Nga leka lu gyo gi yin. Choe rang ga re be gi yin?',en:'I am going to work. What are you doing?'},
+    {speaker:'Tashi',dz:'ང་ཚོང་ར་ལུ་འགྱོ་གི་ཡིན། ཕྱིར་མཐོང་འཕྲད་ཀྱི་དགའ།',rom:'Nga tsong ra lu gyo gi yin. Chir thong trad kyi ga.',en:'I am going to the market. See you later!'},
+    {speaker:'Pema',dz:'བཀྲ་ཤིས་བདེ་ལེགས།',rom:'Tashi Delek.',en:'Blessings and good luck!'},
+  ],
+  quiz:[
+    {q:'What does ཞོགས་པ་བདེ་ལེགས། mean?',opts:['Good night','Good afternoon','Good morning','Goodbye'],correct:2},
+    {q:'Where is Pema going?',opts:['To the market','To school','To work','To the temple'],correct:2},
+    {q:'Where is Tashi going?',opts:['To work','To the market','To the river','Home'],correct:1},
+    {q:'What does ཕྱིར་མཐོང་འཕྲད་ཀྱི་དགའ། mean?',opts:['Good morning','Thank you','See you later','Good luck'],correct:2},
+  ]
+},
+{
+  title:'Tea Time with Ama',
+  titleDz:'ཨམ་མའི་དང་ཇ།',
+  emoji:'🍵',
+  bg:'linear-gradient(135deg,#1a3a2a,#0e2d1d)',
+  level:'Intermediate',
+  vocab:[
+    {dz:'ཇ།',en:'Tea',rom:'Ja'},
+    {dz:'ཨམ་མ།',en:'Mother',rom:'Ama'},
+    {dz:'ཨ་ཕ།',en:'Father',rom:'Apa'},
+    {dz:'ཁྱིམ།',en:'Home / House',rom:'Khyim'},
+    {dz:'ཟས།',en:'Food / Meal',rom:'Zha'},
+    {dz:'དགའ།',en:'Happy / Like',rom:'Ga'},
+    {dz:'མཉམ།',en:'Together',rom:'Nyam'},
+  ],
+  lines:[
+    {speaker:'Ama',dz:'བུ། ཇ་འཐུང་ཤོག ཇ་དྲོ་དྲོ་འདུག',rom:'Bu. Ja thung shog. Ja dro dro dug.',en:'Child, come drink tea. The tea is hot.'},
+    {speaker:'Sonam',dz:'ཀ་དྲིན་ཆེ་ལགས། ཨམ་མ། ཇ་སྙིམ་པོ་འདུག',rom:'Kadrinche la, Ama. Ja nyimpo dug.',en:'Thank you, Mother. The tea is delicious.'},
+    {speaker:'Ama',dz:'ཁྱིམ་ལུ་ལེགས་ཤོམ་ཡོད། ཁྱེད་རང་ལས་ཀ་ཡག་པོ་འདུག་གས།',rom:'Khyim lu legshom yod. Choe rang leka yagpo dug ga?',en:'We are happy at home. Is your work going well?'},
+    {speaker:'Sonam',dz:'ལེགས་ཤོམ་འདུག། ཨ་ཕ་ག་ཏེ་ཡོད།',rom:'Legshom dug. Apa gate yod?',en:'It is going well. Where is Father?'},
+    {speaker:'Ama',dz:'ཨ་ཕ་ཚོང་ར་ལུ་འགྱོ་སོང་། ཕྱིར་འོང་གི་རེད།',rom:'Apa tsong ra lu gyo song. Chir ong gi red.',en:'Father went to the market. He will come back later.'},
+    {speaker:'Sonam',dz:'ལེགས་ཤོམ། ང་ཚོ་མཉམ་ཟས་ཟ་འགྲུབ།',rom:'Legshom. Ngatso nyam zha za drub.',en:'Good. We will eat together.'},
+  ],
+  quiz:[
+    {q:'What does Ama offer Sonam?',opts:['Food','Water','Tea','Apples'],correct:2},
+    {q:'What does ཇ་སྙིམ་པོ་འདུག mean?',opts:['Tea is cold','Tea is ready','Tea is delicious','Tea is finished'],correct:2},
+    {q:'Where did Apa (Father) go?',opts:['To work','To school','To the temple','To the market'],correct:3},
+    {q:'What does མཉམ mean?',opts:['Alone','Together','Later','Now'],correct:1},
+    {q:'What does ཁྱིམ mean?',opts:['Market','Temple','Home','School'],correct:2},
+  ]
+}
+];
+
+let activeStoryTab='read', activeVocabIdx=null;
+
+function openStory(idx){
+  const s=STORIES[idx];
+  document.getElementById('story-modal-title').textContent=s.title+' · '+s.titleDz;
+  document.getElementById('story-modal').classList.add('open');
+  activeStoryTab='read'; activeVocabIdx=null;
+  renderStory(idx);
+}
+function closeStory(){document.getElementById('story-modal').classList.remove('open')}
+
+function renderStory(idx){
+  const s=STORIES[idx];
+  const body=document.getElementById('story-modal-body');
+  body.innerHTML=`
+    <div class="story-banner-lg" style="background:${s.bg}">${s.emoji}</div>
+    <div style="margin-bottom:6px"><span style="font-size:13px;color:var(--muted)">${s.level}</span></div>
+    <div class="story-mode-tabs">
+      <button class="smt${activeStoryTab==='read'?' active':''}" onclick="setStoryTab(${idx},'read')">📖 Read</button>
+      <button class="smt${activeStoryTab==='vocab'?' active':''}" onclick="setStoryTab(${idx},'vocab')">📝 Vocab</button>
+      <button class="smt${activeStoryTab==='quiz'?' active':''}" onclick="setStoryTab(${idx},'quiz')">❓ Quiz</button>
+    </div>
+    <div id="story-tab-content"></div>`;
+  renderStoryTab(idx);
+}
+
+function setStoryTab(idx,tab){activeStoryTab=tab;activeVocabIdx=null;renderStory(idx)}
+
+function renderStoryTab(idx){
+  const s=STORIES[idx];
+  const el=document.getElementById('story-tab-content');
+  if(activeStoryTab==='read'){
+    el.innerHTML=s.lines.map((l,i)=>`
+      <div class="story-line" id="sline-${i}" onclick="playStoryLine(${i},'${l.rom}',${idx})">
+        <div class="sl-speaker">${l.speaker}</div>
+        <div class="sl-dz">${l.dz}</div>
+        <div class="sl-rom">${l.rom}</div>
+        <div class="sl-en">${l.en}</div>
+      </div>`).join('')+
+      `<div style="text-align:center;padding:8px 0 4px"><button class="bchk rdy" style="max-width:240px;margin:0 auto" onclick="setStoryTab(${idx},'vocab')">Next: Learn Vocabulary →</button></div>`;
+  } else if(activeStoryTab==='vocab'){
+    el.innerHTML=`
+      <div style="font-size:14px;font-weight:700;color:var(--muted);margin-bottom:14px">Tap a word to see its meaning</div>
+      <div style="margin-bottom:16px">`+
+      s.vocab.map((v,i)=>`<span class="vocab-chip" onclick="toggleVocab(${i})">${v.dz}</span>`).join('')+
+      `</div>
+      <div id="vocab-pop-area"></div>
+      <div style="text-align:center;padding:8px 0 4px"><button class="bchk rdy" style="max-width:240px;margin:0 auto" onclick="setStoryTab(${idx},'quiz')">Next: Take the Quiz →</button></div>`;
+    // show all vocab as cards
+    document.getElementById('vocab-pop-area').innerHTML=s.vocab.map((v,i)=>`
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px">
+        <div style="font-family:var(--dzfont);font-size:26px;color:var(--accent);min-width:70px;line-height:1.7">${v.dz}</div>
+        <div><div style="font-size:15px;font-weight:800">${v.en}</div><div style="font-size:12px;color:var(--muted);margin-top:2px;font-style:italic">${v.rom}</div></div>
+      </div>`).join('');
+  } else if(activeStoryTab==='quiz'){
+    el.innerHTML=`<div id="quiz-area">`+
+      s.quiz.map((q,qi)=>`
+        <div class="sq" id="sq-${qi}">
+          <div class="sq-num">Question ${qi+1} of ${s.quiz.length}</div>
+          <div class="sq-q">${q.q}</div>
+          <div class="sq-opts">`+
+            q.opts.map((o,oi)=>`<button class="sq-opt" id="sqo-${qi}-${oi}" onclick="answerQuiz(${idx},${qi},${oi})">${o}</button>`).join('')+
+          `</div>
+        </div>`).join('')+
+      `</div>`;
+  }
+}
+
+function playStoryLine(i, rom, idx){
+  document.querySelectorAll('.story-line').forEach(l=>l.classList.remove('playing'));
+  document.getElementById('sline-'+i).classList.add('playing');
+  if('speechSynthesis' in window){
+    speechSynthesis.cancel();
+    const u=new SpeechSynthesisUtterance(rom);u.lang='en';u.rate=0.7;
+    u.onend=()=>document.getElementById('sline-'+i)&&document.getElementById('sline-'+i).classList.remove('playing');
+    speechSynthesis.speak(u);
+  } else {
+    setTimeout(()=>document.getElementById('sline-'+i)&&document.getElementById('sline-'+i).classList.remove('playing'),2000);
+  }
+}
+
+function toggleVocab(i){
+  const s=STORIES.find(x=>document.getElementById('story-modal').classList.contains('open'));
+  activeVocabIdx=activeVocabIdx===i?null:i;
+  // chips highlight
+  document.querySelectorAll('.vocab-chip').forEach((c,ci)=>{
+    c.style.background=ci===activeVocabIdx?'rgba(245,200,66,0.25)':'rgba(245,200,66,0.1)';
+  });
+}
+
+let quizAnswers={};
+function answerQuiz(storyIdx, qi, oi){
+  const q=STORIES[storyIdx].quiz[qi];
+  if(quizAnswers[qi]!==undefined)return;
+  quizAnswers[qi]=oi;
+  const opts=document.querySelectorAll(`[id^="sqo-${qi}-"]`);
+  opts.forEach((btn,i)=>{
+    btn.disabled=true;
+    if(i===q.correct)btn.classList.add(oi===q.correct?'ok':'reveal');
+    else if(i===oi)btn.classList.add('bad');
+  });
+  // check if all answered
+  if(Object.keys(quizAnswers).length===STORIES[storyIdx].quiz.length){
+    const correct=Object.entries(quizAnswers).filter(([qi,oi])=>STORIES[storyIdx].quiz[qi].correct===oi).length;
+    const total=STORIES[storyIdx].quiz.length;
+    setTimeout(()=>{
+      document.getElementById('quiz-area').innerHTML+=`
+        <div class="quiz-result">
+          <div style="font-size:48px;margin-bottom:12px">${correct===total?'🏆':correct>=total/2?'⭐':'👍'}</div>
+          <div style="font-size:20px;font-weight:900;margin-bottom:6px">${correct} / ${total} correct</div>
+          <div style="font-size:14px;color:var(--muted);margin-bottom:20px">${correct===total?'Perfect! ཀུ་ཟུ་ཟང་པོ།':correct>=total/2?'Good work! Keep reading.':'Try reading the story again!'}</div>
+          <button class="bcont" style="max-width:220px;margin:0 auto" onclick="resetQuiz(${storyIdx})">Try Again</button>
+        </div>`;
+      document.getElementById('quiz-area').scrollIntoView({behavior:'smooth'});
+      showToast('📖 +15 XP for completing the story!');
+    },600);
+  }
+}
+function resetQuiz(idx){quizAnswers={};setStoryTab(idx,'quiz')}
+
+// ── USER NAME ────────────────────────────────────────────────────────────────
+function loadUserName(){
+  const name = localStorage.getItem('dz_username');
+  if(!name){
+    document.getElementById('onboard-modal').classList.add('show');
+  } else {
+    applyUserName(name);
+  }
+}
+function saveUserName(){
+  const input = document.getElementById('onboard-name');
+  const name = input.value.trim();
+  if(!name){ input.focus(); input.style.borderColor='var(--accent2)'; return; }
+  localStorage.setItem('dz_username', name);
+  document.getElementById('onboard-modal').classList.remove('show');
+  applyUserName(name);
+  showToast('ཀུ་ཟུ་ཟང་པོ་ལགས།, ' + name + '! 🎉');
+}
+function applyUserName(name){
+  const el1 = document.getElementById('home-username');
+  const el2 = document.getElementById('profile-username');
+  const el3 = document.getElementById('settings-username');
+  if(el1) el1.textContent = name + '!';
+  if(el2) el2.textContent = name;
+  if(el3) el3.textContent = name;
+}
+function changeName(){
+  localStorage.removeItem('dz_username');
+  const modal = document.getElementById('onboard-modal');
+  const input = document.getElementById('onboard-name');
+  const saved = localStorage.getItem('dz_username') || '';
+  input.value = '';
+  input.placeholder = 'Enter a new name…';
+  modal.classList.add('show');
+  setTimeout(()=>input.focus(), 300);
+}
+// Run on load
+window.addEventListener('DOMContentLoaded', loadUserName);
+
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+function shuffleArr(a){return[...a].sort(()=>Math.random()-0.5)}
+</script>
+
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(()=>console.log('SW registered'))
+      .catch(e=>console.log('SW error',e));
+  });
+}
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt',(e)=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  document.getElementById('install-btn').style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  document.getElementById('install-btn').style.display='none';
+  showToast('App installed! 🎉');
+});
+function installApp(){
+  if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.then(r=>{deferredPrompt=null})}
+}
+</script>
+</body>
+</html>
